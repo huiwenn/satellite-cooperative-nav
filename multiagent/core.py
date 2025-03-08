@@ -269,10 +269,10 @@ class SatWorld(object):
             
             
     def perturbed_dynamics(self,s,u):
-        mu = 398600
-        a = 6378+300
+        mu = (398600)*1000
+        a = (6378+300 )* 1000
         n = (mu/(a**3))**.5
-        re= 6378.1363 #km 
+        re= 6378.1363*1000 #m 
         J2= 1.08262668e-3
         ss = ((3*J2*(re**2))/(8*a**2)) * (1+3*math.cos(2*self.i))
         c =  (1+ss)**.5
@@ -297,8 +297,8 @@ class SatWorld(object):
         
     def dynamics(self, s,u):
         ## linearized J2 equations taken from: https://www.ijser.org/researchpaper/Satellite-Tracking-Control-under-J2-Perturbations.pdf
-        mu = 398600
-        a = 6378+300
+        mu = (398600)*1000
+        a = (6378+300 )* 1000
         n = (mu/(a**3))**.5
 
         A = np.zeros((4,4))

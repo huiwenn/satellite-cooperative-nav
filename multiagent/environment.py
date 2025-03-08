@@ -11,8 +11,7 @@ import math
 # update bounds to center around agent
 cam_range = 2
 
-
-# vectorized wrapper for a batch of multi-agent environments
+# vectorized wrapper 
 # assumes all environments have the same observation and action space
 class BatchMultiAgentEnv(gym.Env):
     metadata = {
@@ -70,10 +69,6 @@ class BatchMultiAgentEnv(gym.Env):
 
 ############## Satellite Environments #######################
 
-
-
-# environment for all agents in the multiagent world
-# currently code assumes that no agents will be created/destroyed at runtime!
 class SatelliteMultiAgentBaseEnv(gym.Env):
     """
         Base environment for all multi-agent environments
@@ -104,22 +99,16 @@ class SatelliteMultiAgentBaseEnv(gym.Env):
         self.observation_callback = observation_callback
         self.info_callback = info_callback
         self.done_callback = done_callback
-        # whether we want just local information to be included in the observation or not
-        self.local_obs = local_obs
-        # environment parameters
-        # self.discrete_action_space = True
-        self.discrete_action_space = discrete_action
+        
+        self.local_obs = local_obs # whether we want just local information to be included in the observation or not
 
-        # if true, action is a number 0...N, 
-        # otherwise action is a one-hot N-dimensional vector
-        self.discrete_action_input = False
-        # if true, even the action is continuous, 
-        # action will be performed discretely
+        self.discrete_action_space = discrete_action
+        self.discrete_action_input = False# if true, action is a number 0...N, otherwise action is a one-hot N-dimensional vector
+        
         self.force_discrete_action = world.discrete_action if hasattr(world, 
-                                                'discrete_action') else False
-        # if true, every agent has the same reward
+                                                'discrete_action') else False # if true, even the action is continuous,  action will be performed discretely
         self.shared_reward = world.collaborative if hasattr(world, 
-                                                    'collaborative') else False
+                                                    'collaborative') else False  # if true, every agent has the same reward
         self.time = 0
 
         # configure spaces
@@ -217,15 +206,14 @@ class SatelliteMultiAgentBaseEnv(gym.Env):
         return self.observation_callback(agent=agent, world=self.world, 
                                         local_obs=self.local_obs)
 
-    # get shared observation for the environment
-    def _get_shared_obs(self) -> np.ndarray:
+    
+    def _get_shared_obs(self) -> np.ndarray:  # get shared observation for the environment
         if self.shared_obs_callback is None:
             return None
         return self.shared_obs_callback(self.world)
         
-    # get dones for a particular agent
-    # unused right now -- agents are allowed to go beyond the viewing screen
-    def _get_done(self, agent:Agent) -> bool:
+    
+    def _get_done(self, agent:Agent) -> bool:   # get dones for a particular agent
         if self.done_callback is None:
             if self.current_step >= self.world_length:
                 return True
@@ -233,15 +221,15 @@ class SatelliteMultiAgentBaseEnv(gym.Env):
                 return False
         return self.done_callback(agent, self.world)
 
-    # get reward for a particular agent
-    def _get_reward(self, agent:Agent) -> float:
+    
+    def _get_reward(self, agent:Agent) -> float: # get reward for a particular agent
         if self.reward_callback is None:
             return 0.0
         return self.reward_callback(agent, self.world)
 
-    # set env action for a particular agent
+   
     def _set_action(self, action, agent:Agent, action_space, 
-                    time:Optional=None) -> None:
+                    time:Optional=None) -> None:  # set env action for a particular agent
         agent.action.u = np.zeros(self.world.dim_p)
         agent.action.c = np.zeros(self.world.dim_c)
         # process action
@@ -258,10 +246,9 @@ class SatelliteMultiAgentBaseEnv(gym.Env):
 
         # actions: [None, ←, →, ↓, ↑, comm1, comm2]
         if agent.movable:
-            #print('is it actually entering the agent.mvoeable')
-            # physical action
+
             if self.discrete_action_input:
-                #print('if statement discrete action input')
+
                 agent.action.u = np.zeros(self.world.dim_p)
                 # process discrete action
                 if action[0] == 1: agent.action.u[0] = -1.0
@@ -269,52 +256,34 @@ class SatelliteMultiAgentBaseEnv(gym.Env):
                 if action[0] == 3: agent.action.u[1] = -1.0
                 if action[0] == 4: agent.action.u[1] = +1.0
             else:
-                if self.force_discrete_action:
-                    #print('else stateent, self.force_discrete_action') 			
+                if self.force_discrete_action:		
                     d = np.argmax(action[0])
                     action[0][:] = 0.0
                     action[0][d] = 1.0
                 if self.discrete_action_space:
-                    #print('else stateent, second if guy in there self.force_discrete_action') 
-                    #print('the current action thing is; '+str(agent.action.u))
-                    #print('action in x direction '+ str(action[0][1]) + ' subtracting ' + str(action[0][2]))	
+
                     agent.action.u[0] += action[0][1] - action[0][2]
                     agent.action.u[1] += action[0][3] - action[0][4]
-                    #print('bro what ' + str( action[0][3]) + '   -  ' + str(action[0][4]))
+
                 else:
-                   # print('else stateent, final else self.force_discrete_action') 	
+
                     agent.action.u = action[0]
             sensitivity = 5.0
             if agent.accel is not None:
                 sensitivity = agent.accel
-            agent.action.u *= sensitivity
-            # NOTE: refer offpolicy/envs/mpe/environment.py -> MultiAgentEnv._set_action() for non-silent agent
+            agent.action.u *= sensitivity # NOTE: refer offpolicy/envs/mpe/environment.py -> MultiAgentEnv._set_action() for non-silent agent
             action = action[1:]
-        if not agent.silent:
-            # communication action
-            if self.discrete_action_input:
-                agent.action.c = np.zeros(self.world.dim_c)
-                agent.action.c[action[0]] = 1.0
-            else:
-                agent.action.c = action[0]
-            action = action[1:]
-        # make sure we used all elements of action
-        assert len(action) == 0
+        
+        assert len(action) == 0# make sure we used all elements of action
 
-    # reset rendering assets
-    def _reset_render(self) -> None:
+    
+    def _reset_render(self) -> None:  # reset rendering assets
         self.render_geoms = None
         self.render_geoms_xform = None
 
-    # render environment
-    def render(self, mode:str='human', close:bool=False) -> List:
-        if close:
-            # close any existic renderers
-            for i, viewer in enumerate(self.viewers):
-                if viewer is not None:
-                    viewer.close()
-                self.viewers[i] = None
-            return []
+
+    def render(self, mode:str='human', close:bool=False) -> List:     # render environment
+
 
         if mode == 'human':
             alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
@@ -328,22 +297,17 @@ class SatelliteMultiAgentBaseEnv(gym.Env):
                     else:
                         word = alphabet[np.argmax(other.state.c)]
                     message += (other.name + ' to ' + agent.name + ': ' + word + '   ')
-            # print(message)
 
         for i in range(len(self.viewers)):
             # create viewers (if necessary)
             if self.viewers[i] is None:
-                # import rendering only if we need it 
-                # (and don't import for headless machines)
-                # from gym.envs.classic_control import rendering
+
                 from multiagent import rendering
                 self.viewers[i] = rendering.Viewer(700,700)
 
         # create rendering geometry
         if self.render_geoms is None:
-            # import rendering only if we need it 
-            # (and don't import for headless machines)
-            # from gym.envs.classic_control import rendering
+
             from multiagent import rendering
             self.render_geoms = []
             self.render_geoms_xform = []
@@ -409,11 +373,6 @@ class SatelliteMultiAgentBaseEnv(gym.Env):
                     geom.set_color(*wall.color, alpha=0.5)
                 self.render_geoms.append(geom)
 
-            # add geoms to viewer
-            # for viewer in self.viewers:
-            #     viewer.geoms = []
-            #     for geom in self.render_geoms:
-            #         viewer.add_geom(geom)
 
             for viewer in self.viewers:
                 viewer.geoms = []
