@@ -15,7 +15,6 @@
 import argparse
 from typing import Dict
 import numpy as np
-
 from multiagent.custom_scenarios import load
 
 def MPEEnv(args:argparse.Namespace):
@@ -37,10 +36,8 @@ def MPEEnv(args:argparse.Namespace):
     """
 
 
-    if args.algorithm_name in ['mappo', 'rmappo']:
-        from multiagent.environment import MultiAgentPPOEnv as MultiAgentEnv
-    else:
-        from multiagent.environment import MultiAgentOffPolicyEnv as MultiAgentEnv
+
+    from multiagent.environment import  SatelliteMultiAgentBaseEnv as MultiAgentEnv
 ##### # create world
     scenario = load(args.scenario_name + ".py").Scenario()
     world = scenario.make_world(args=args)

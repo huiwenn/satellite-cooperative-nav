@@ -16,7 +16,7 @@ class RVOPolicy():
         
         sensing_horizon = np.inf
         max_num_agents_in_env = 19
-        rvo_time_horizon = 2.5  # NOTE: bjorn used 1.0 in training for corl19
+        rvo_time_horizon = 2.5  
         self.rvo_collab_coeff = 0.5
         self.rvo_anti_collab_t = 1.0
         self.dt = 0.1
@@ -134,30 +134,7 @@ class RVOPolicy():
         ########## process new pos to speed and angle ##########
         deltaPos = self.new_rvo_pos - self.pos_agents[agent_index,:]
         action = self.convert_to_action(delta_pos=deltaPos)
-        # p1 = deltaPos
-        # p2 = np.array([1,0]) # Angle zero is parallel to x-axis
-        # ang1 = np.arctan2(*p1[::-1])
-        # ang2 = np.arctan2(*p2[::-1])
-        # new_heading_global_frame = (ang1 - ang2) % (2 * np.pi)
-        # delta_heading = wrap(new_heading_global_frame - agents[agent_index].heading_global_frame)
-            
-        # # Calculate desired speed
-        # pref_speed = 1/self.dt * np.linalg.norm(deltaPos)
 
-        # # Limit the turning rate: stop and turn in place if exceeds
-        # if abs(delta_heading) > self.max_delta_heading:
-        #     delta_heading = np.sign(delta_heading)*self.max_delta_heading
-        #     pref_speed = 0.
-
-        # # Ignore speed
-        # if self.has_fixed_speed:
-        #     pref_speed = self.max_speed
-
-        # # Add noise
-        # if self.heading_noise:
-        #     delta_heading = delta_heading + np.random.normal(0,0.5)
-
-        # action = np.array([pref_speed, delta_heading])
         return action
 
     

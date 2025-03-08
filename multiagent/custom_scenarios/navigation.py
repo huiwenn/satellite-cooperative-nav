@@ -21,10 +21,9 @@ class SatelliteScenario(BaseScenario):
             Parameters in args
             ––––––––––––––––––
             • num_agents: int
-                Number of agents in the environment
-                NOTE: this is equal to the number of goal positions
-            • num_obstacles: int
-                Number of num_obstacles obstacles
+                Number of satellites in the environment
+            • num_debris int
+                Number of debris, which functino as obstacles
             • collaborative: bool
                 If True then reward for all agents is sum(reward_i)
                 If False then reward for each agent is what it gets individually
@@ -51,7 +50,7 @@ class SatelliteScenario(BaseScenario):
         """
         # pull params from args
         self.num_agents = args.num_agents
-        self.num_obstacles = args.num_obstacles
+        self.num_obstacles = args.num_debris
         self.collaborative = args.collaborative
         self.max_speed = args.max_speed
         self.collision_rew = args.collision_rew
@@ -100,21 +99,19 @@ class SatelliteScenario(BaseScenario):
         return world
 
     def reset_world(self, world:SatWorld) -> None:
-        # metrics to keep track of
         world.current_time_step = 0
-        # to track time required to reach goal
-        world.times_required = -1 * np.ones(self.num_agents)
-        # track distance left to the goal
-        world.dist_left_to_goal = -1 * np.ones(self.num_agents)
-        # number of times agents collide with stuff
-        world.num_obstacle_collisions = np.zeros(self.num_agents)
+        
+        world.times_required = -1 * np.ones(self.num_agents) # to track time required to reach goal
+        world.dist_left_to_goal = -1 * np.ones(self.num_agents) # track distance left to the goal
+        
+        world.num_obstacle_collisions = np.zeros(self.num_agents)# number of times agents collide with stuff
         world.num_agent_collisions = np.zeros(self.num_agents)
 
         #################### set colours ####################
         # set colours for agents
         for i, agent in enumerate(world.agents):
             agent.color = np.array([0.35, 0.35, 0.85])
-        # set colours for landmarks
+        # set colours for goals
         for i, landmark in enumerate(world.landmarks):
             landmark.color = np.array([0.15, 0.85, 0.15])
         # set colours for obstacles
@@ -337,7 +334,7 @@ class SatelliteScenario(BaseScenario):
 
 if __name__ == "__main__":
 
-    from multiagent.environment import MultiAgentOrigEnv, MultiAgentShareEnv, SatelliteMultiAgentOrigEnv
+    from multiagent.environment import SatelliteMultiAgentOrigEnv
     from multiagent.policy import InteractivePolicy
 
     # makeshift argparser
@@ -355,35 +352,18 @@ if __name__ == "__main__":
             self.share_env = True
     args = Args()
 
-    if args.world_type in ['satellite']:
-        scenario = SatelliteScenario()
-        # create world
-        world = scenario.make_world(args)
-        env = SatelliteMultiAgentOrigEnv(world=world, reset_callback=scenario.reset_world, 
-                        reward_callback=scenario.reward, 
-                        observation_callback=scenario.observation, 
-                        info_callback=scenario.info_callback, 
-                        done_callback= scenario.done,
-                        shared_viewer = False)
-    else:
-        scenario = Scenario()
-        world = scenario.make_world(args)
-     # create multiagent environment
-        if args.share_env:
-            env = MultiAgentShareEnv(world=world, reset_callback=scenario.reset_world, 
-                                reward_callback=scenario.reward, 
-                                observation_callback=scenario.observation, 
-                                info_callback=scenario.info_callback, 
-                                done_callback= scenario.done,
-                                shared_obs_callback=scenario.shared_observation,
-                                shared_viewer = False)
-        else:
-            env = MultiAgentOrigEnv(world=world, reset_callback=scenario.reset_world, 
-                                reward_callback=scenario.reward, 
-                                observation_callback=scenario.observation, 
-                                info_callback=scenario.info_callback, 
-                                done_callback= scenario.done,
-                                shared_viewer = False)
+
+    scenario = SatelliteScenario()
+    # create world
+    world = scenario.make_world(args)
+    env = SatelliteMultiAgentOrigEnv(world=world, reset_callback=scenario.reset_world, 
+                    reward_callback=scenario.reward, 
+                    observation_callback=scenario.observation, 
+                    info_callback=scenario.info_callback, 
+                    done_callback= scenario.done,
+                    shared_viewer = False)
+    
+    
     # render call to create viewer window
     env.render()
     # create interactive policies for each agent

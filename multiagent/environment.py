@@ -357,21 +357,7 @@ class SatelliteMultiAgentBaseEnv(gym.Env):
                 self.render_geoms_xform.append(xform)
                 self.comm_geoms.append(entity_comm_geoms)
 
-            for wall in self.world.walls:
-                corners = ((wall.axis_pos - 0.5 * wall.width, wall.endpoints[0]),
-                           (wall.axis_pos - 0.5 *
-                            wall.width, wall.endpoints[1]),
-                           (wall.axis_pos + 0.5 *
-                            wall.width, wall.endpoints[1]),
-                           (wall.axis_pos + 0.5 * wall.width, wall.endpoints[0]))
-                if wall.orient == 'H':
-                    corners = tuple(c[::-1] for c in corners)
-                geom = rendering.make_polygon(corners)
-                if wall.hard:
-                    geom.set_color(*wall.color)
-                else:
-                    geom.set_color(*wall.color, alpha=0.5)
-                self.render_geoms.append(geom)
+        
 
 
             for viewer in self.viewers:
@@ -437,22 +423,17 @@ class SatelliteMultiAgentBaseEnv(gym.Env):
 
     # create receptor field locations in local coordinate frame
     def _make_receptor_locations(self, agent:Agent) -> List:
-        receptor_type = 'polar'
+
         range_min = 0.05 * 2.0
         range_max = 1.00
         dx = []
-        # circular receptive field
-        if receptor_type == 'polar':
-            for angle in np.linspace(-np.pi, +np.pi, 8, endpoint=False):
-                for distance in np.linspace(range_min, range_max, 3):
-                    dx.append(distance * np.array([np.cos(angle), np.sin(angle)]))
-            # add origin
-            dx.append(np.array([0.0, 0.0]))
-        # grid receptive field
-        if receptor_type == 'grid':
-            for x in np.linspace(-range_max, +range_max, 5):
-                for y in np.linspace(-range_max, +range_max, 5):
-                    dx.append(np.array([x,y]))
+
+        for angle in np.linspace(-np.pi, +np.pi, 8, endpoint=False):
+            for distance in np.linspace(range_min, range_max, 3):
+                dx.append(distance * np.array([np.cos(angle), np.sin(angle)]))
+        # add origin
+        dx.append(np.array([0.0, 0.0]))
+        
         return dx
 
 
