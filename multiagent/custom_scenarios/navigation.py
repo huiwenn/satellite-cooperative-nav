@@ -334,7 +334,7 @@ class SatelliteScenario(BaseScenario):
 
 if __name__ == "__main__":
 
-    from multiagent.environment import SatelliteMultiAgentOrigEnv
+    from multiagent.environment import SatelliteMultiAgentBaseEnv
     from multiagent.policy import InteractivePolicy
 
     # makeshift argparser
@@ -356,7 +356,7 @@ if __name__ == "__main__":
     scenario = SatelliteScenario()
     # create world
     world = scenario.make_world(args)
-    env = SatelliteMultiAgentOrigEnv(world=world, reset_callback=scenario.reset_world, 
+    env = SatelliteMultiAgentBaseEnv(world=world, reset_callback=scenario.reset_world, 
                     reward_callback=scenario.reward, 
                     observation_callback=scenario.observation, 
                     info_callback=scenario.info_callback, 

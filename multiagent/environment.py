@@ -13,7 +13,7 @@ cam_range = 2
 
 # vectorized wrapper 
 # assumes all environments have the same observation and action space
-class BatchMultiSatelliteEnv(gym.Env):
+class BatchMultiAgengEnv(gym.Env):
     metadata = {
         'runtime.vectorized': True,
         'render.modes' : ['human', 'rgb_array']
