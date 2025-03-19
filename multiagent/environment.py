@@ -524,7 +524,10 @@ class SatelliteMultiAgentOrigEnv(SatelliteMultiAgentBaseEnv):
         self._reset_render()
         # record observations for each agent
         obs_n = []
+        shared_obs_n = []
         self.agents = self.world.policy_agents
         for agent in self.agents:
             obs_n.append(self._get_obs(agent))
-        return obs_n
+            shared_obs_n.append(self._get_shared_obs())
+
+        return obs_n, shared_obs_n
