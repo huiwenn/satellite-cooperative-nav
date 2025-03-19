@@ -10,7 +10,7 @@ import numpy as np
 import os,sys
 sys.path.append(os.path.abspath(os.getcwd()))
 
-from multiagent.core import  SatWorld, Satellite, Landmark
+from multiagent.core import  SatWorld, Satellite, Debris
 from multiagent.scenario import BaseScenario
 
 
@@ -82,14 +82,14 @@ class SatelliteScenario(BaseScenario):
             # agent.size = 0.15
             agent.max_speed = self.max_speed
         # add landmarks (goals)
-        world.landmarks = [Landmark() for i in range(num_landmarks)]
+        world.landmarks = [Debris() for i in range(num_landmarks)]
         for i, landmark in enumerate(world.landmarks):
             landmark.id = i
             landmark.name = f'landmark {i}'
             landmark.collide = False
             landmark.movable = False
         # add obstacles
-        world.obstacles = [Landmark() for i in range(self.num_obstacles)]
+        world.obstacles = [Debris() for i in range(self.num_obstacles)]
         for i, obstacle in enumerate(world.obstacles):
             obstacle.name = f'obstacle {i}'
             obstacle.collide = True
