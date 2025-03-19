@@ -13,7 +13,7 @@ cam_range = 2
 
 # vectorized wrapper 
 # assumes all environments have the same observation and action space
-class BatchMultiAgengEnv(gym.Env):
+class BatchMultiAgentEnv(gym.Env):
     metadata = {
         'runtime.vectorized': True,
         'render.modes' : ['human', 'rgb_array']
@@ -437,3 +437,94 @@ class SatelliteMultiAgentBaseEnv(gym.Env):
         return dx
 
 
+
+
+class SatelliteMultiAgentOrigEnv(SatelliteMultiAgentBaseEnv):
+    metadata = {
+        'render.modes' : ['human', 'rgb_array']
+    }
+    """
+        Parameters:
+        –––––––––––
+        world: World
+            World for the environment. Refer `multiagent/core.py`
+        reset_callback: Callable
+            Reset function for the environment. Refer `reset()` in 
+            `multiagent/navigation.py`
+        reward_callback: Callable
+            Reward function for the environment. Refer `reward()` in 
+            `multiagent/navigation.py`
+        observation_callback: Callable
+            Observation function for the environment. Refer `observation()` 
+            in `multiagent/navigation.py`
+        info_callback: Callable
+            Reset function for the environment. Refer `info_callback()` in 
+            `multiagent/navigation.py`
+        done_callback: Callable
+            Reset function for the environment. Refer `done()` in 
+            `multiagent/navigation.py`
+        shared_viewer: bool
+            If we want a shared viewer for rendering the environment or 
+            individual windows for each agent as the ego
+        discrete_action: bool
+            If the action space is discrete or not
+        scenario_name: str
+            Name of the scenario to be loaded. Refer `multiagent/custom_scenarios.py`
+    """
+    def __init__(self, world:SatWorld, reset_callback:Callable=None, 
+                    reward_callback:Callable=None,
+                    observation_callback:Callable=None, 
+                    info_callback:Callable=None,
+                    done_callback:Callable=None, 
+                    shared_viewer:bool=True, 
+                    discrete_action:bool=True,
+                    scenario_name:str='navigation') -> None:
+        super(SatelliteMultiAgentOrigEnv, self).__init__(world, reset_callback, 
+                                            reward_callback,observation_callback, 
+                                            info_callback,done_callback, 
+                                            shared_viewer, discrete_action,
+                                            scenario_name)
+    
+    def step(self, action_n:List) -> Tuple[List, List, List, List]:
+        self.current_step += 1
+        obs_n = []
+        reward_n = []
+        done_n = []
+        info_n = []
+        self.world.current_time_step += 1
+        self.agents = self.world.policy_agents
+        # set action for each agent
+        for i, agent in enumerate(self.agents):
+            self._set_action(action_n[i], agent, self.action_space[i])
+        # advance world state
+        self.world.step()
+        # record observation for each agent
+        for agent in self.agents:
+            obs_n.append(self._get_obs(agent))
+            reward = self._get_reward(agent)
+            reward_n.append(reward)
+            done_n.append(self._get_done(agent))
+            info = {'individual_reward': reward}
+            env_info = self._get_info(agent)
+            info.update(env_info)   # nothing fancy here, just appending dict to dict
+            info_n.append(info)
+
+        # all agents get total reward in cooperative case
+        reward = np.sum(reward_n)
+        if self.shared_reward:
+            reward_n = [reward] * self.n
+
+        return obs_n, reward_n, done_n, info_n
+
+    def reset(self) -> Tuple[List, Union[None, np.ndarray]]:
+        self.current_step = 0
+        # reset world
+        self.reset_callback(self.world)
+        # reset renderer
+        self._reset_render()
+        # record observations for each agent
+        obs_n = []
+        self.agents = self.world.policy_agents
+        for agent in self.agents:
+            obs_n.append(self._get_obs(agent))
+        return obs_n
