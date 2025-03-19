@@ -69,7 +69,7 @@ class BatchMultiSatelliteEnv(gym.Env):
 
 ############## Satellite Environments #######################
 
-class SatelliteMultiSatelliteBaseEnv(gym.Env):
+class SatelliteMultiAgentBaseEnv(gym.Env):
     """
         Base environment for all multi-agent environments
     """
