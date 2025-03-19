@@ -50,7 +50,7 @@ class SatelliteScenario(BaseScenario):
         """
         # pull params from args
         self.num_agents = args.num_agents
-        self.num_obstacles = args.num_debris
+        self.num_obstacles = args.num_obstacles
         self.collaborative = args.collaborative
         self.max_speed = args.max_speed
         self.collision_rew = args.collision_rew
