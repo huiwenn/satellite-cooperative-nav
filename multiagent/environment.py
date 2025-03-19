@@ -13,7 +13,7 @@ cam_range = 2
 
 # vectorized wrapper 
 # assumes all environments have the same observation and action space
-class BatchMultiAgentEnv(gym.Env):
+class BatchMultiSatelliteEnv(gym.Env):
     metadata = {
         'runtime.vectorized': True,
         'render.modes' : ['human', 'rgb_array']
@@ -69,7 +69,7 @@ class BatchMultiAgentEnv(gym.Env):
 
 ############## Satellite Environments #######################
 
-class SatelliteMultiAgentBaseEnv(gym.Env):
+class SatelliteMultiSatelliteBaseEnv(gym.Env):
     """
         Base environment for all multi-agent environments
     """
@@ -194,13 +194,13 @@ class SatelliteMultiAgentBaseEnv(gym.Env):
         raise NotImplementedError
 
     # get info used for benchmarking
-    def _get_info(self, agent:Agent) -> Dict:
+    def _get_info(self, agent:Satellite) -> Dict:
         if self.info_callback is None:
             return {}
         return self.info_callback(agent, self.world)
 
     # get observation for a particular agent
-    def _get_obs(self, agent:Agent) -> np.ndarray:
+    def _get_obs(self, agent:Satellite) -> np.ndarray:
         if self.observation_callback is None:
             return np.zeros(0)
         return self.observation_callback(agent=agent, world=self.world, 
@@ -213,7 +213,7 @@ class SatelliteMultiAgentBaseEnv(gym.Env):
         return self.shared_obs_callback(self.world)
         
     
-    def _get_done(self, agent:Agent) -> bool:   # get dones for a particular agent
+    def _get_done(self, agent:Satellite) -> bool:   # get dones for a particular agent
         if self.done_callback is None:
             if self.current_step >= self.world_length:
                 return True
@@ -222,13 +222,13 @@ class SatelliteMultiAgentBaseEnv(gym.Env):
         return self.done_callback(agent, self.world)
 
     
-    def _get_reward(self, agent:Agent) -> float: # get reward for a particular agent
+    def _get_reward(self, agent:Satellite) -> float: # get reward for a particular agent
         if self.reward_callback is None:
             return 0.0
         return self.reward_callback(agent, self.world)
 
    
-    def _set_action(self, action, agent:Agent, action_space, 
+    def _set_action(self, action, agent:Satellite, action_space, 
                     time:Optional=None) -> None:  # set env action for a particular agent
         agent.action.u = np.zeros(self.world.dim_p)
         agent.action.c = np.zeros(self.world.dim_c)
@@ -271,7 +271,7 @@ class SatelliteMultiAgentBaseEnv(gym.Env):
             sensitivity = 5.0
             if agent.accel is not None:
                 sensitivity = agent.accel
-            agent.action.u *= sensitivity # NOTE: refer offpolicy/envs/mpe/environment.py -> MultiAgentEnv._set_action() for non-silent agent
+            agent.action.u *= sensitivity # NOTE: refer offpolicy/envs/mpe/environment.py -> MultiSatelliteEnv._set_action() for non-silent agent
             action = action[1:]
         
         assert len(action) == 0# make sure we used all elements of action
@@ -422,7 +422,7 @@ class SatelliteMultiAgentBaseEnv(gym.Env):
         return results
 
     # create receptor field locations in local coordinate frame
-    def _make_receptor_locations(self, agent:Agent) -> List:
+    def _make_receptor_locations(self, agent:Satellite) -> List:
 
         range_min = 0.05 * 2.0
         range_max = 1.00
