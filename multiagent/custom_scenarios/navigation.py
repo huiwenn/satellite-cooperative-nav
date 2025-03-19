@@ -10,7 +10,7 @@ import numpy as np
 import os,sys
 sys.path.append(os.path.abspath(os.getcwd()))
 
-from multiagent.core import  SatWorld, Agent, Landmark
+from multiagent.core import  SatWorld, Satellite, Landmark
 from multiagent.scenario import BaseScenario
 
 
@@ -71,7 +71,7 @@ class SatelliteScenario(BaseScenario):
         world.collaborative = args.collaborative
 
         # add agents
-        world.agents = [Agent() for i in range(self.num_agents)]
+        world.agents = [Satellite() for i in range(self.num_agents)]
         for i, agent in enumerate(world.agents):
             agent.id = i
             agent.name = f'agent {i}'
@@ -162,7 +162,7 @@ class SatelliteScenario(BaseScenario):
                 self.min_time(agent, world)
         #####################################################
 
-    def info_callback(self, agent:Agent, world:SatWorld) -> Tuple:
+    def info_callback(self, agent:Satellite, world:SatWorld) -> Tuple:
         # TODO modify this 
         rew = 0
         collisions = 0
@@ -208,7 +208,7 @@ class SatelliteScenario(BaseScenario):
         return collision
 
     # check collision of agent with another agent
-    def is_collision(self, agent1:Agent, agent2:Agent) -> bool:
+    def is_collision(self, agent1:Entity, agent2:Entity) -> bool:
         delta_pos = agent1.state.p_pos - agent2.state.p_pos
         dist = np.sqrt(np.sum(np.square(delta_pos)))
         dist_min = agent1.size + agent2.size
@@ -226,7 +226,7 @@ class SatelliteScenario(BaseScenario):
         return collision
 
     # get min time required to reach to goal without obstacles
-    def min_time(self, agent:Agent, world:SatWorld) -> float:
+    def min_time(self, agent:Satellite, world:SatWorld) -> float:
         assert agent.max_speed is not None, "Agent needs to have a max_speed"
         agent_id = agent.id
         # get the goal associated to this agent
@@ -238,7 +238,7 @@ class SatelliteScenario(BaseScenario):
         return min_time
 
     # done condition for each agent
-    def done(self, agent:Agent, world:SatWorld) -> bool:
+    def done(self, agent:Satellite, world:SatWorld) -> bool:
         # if we are using dones then return appropriate done
         if self.use_dones:
             landmark = world.get_entity('landmark', agent.id)
@@ -256,7 +256,7 @@ class SatelliteScenario(BaseScenario):
             else:
                 return False
 
-    def reward(self, agent:Agent, world:SatWorld) -> float:
+    def reward(self, agent:Satellite, world:SatWorld) -> float:
         # Agents are rewarded based on distance to 
         # its landmark, penalized for collisions
         rew = 0
@@ -280,7 +280,7 @@ class SatelliteScenario(BaseScenario):
                 rew -= self.collision_rew
         return rew
 
-    def observation(self, agent:Agent, world:SatWorld, local_obs:bool) -> np.ndarray:
+    def observation(self, agent:Satellite, world:SatWorld, local_obs:bool) -> np.ndarray:
         """
             agent: Agent object
             world: World object
