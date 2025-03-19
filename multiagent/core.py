@@ -37,6 +37,8 @@ class Entity(object): # properties and state of physical world entity
 
         self.state = EntityState()  # state
         self.initial_mass = 1.0 #kilograms
+        # commu channel
+        self.channel = None
 
 
     @property
@@ -47,10 +49,6 @@ class Debris(Entity):
     def __init__(self):
         super(Debris, self).__init__()
 
-# properties of landmark entities
-class Landmark(Entity):
-    def __init__(self):
-        super(Landmark, self).__init__()
 
 class Satellite(Entity):# properties of satellites
     def __init__(self):
