@@ -3,7 +3,7 @@ from gym import spaces
 from gym.envs.registration import EnvSpec
 import numpy as np
 from typing import Callable, List, Tuple, Dict, Union, Optional
-from multiagent.core import Agent, Landmark, SatWorld
+from multiagent.core import Agent, SatWorld
 from multiagent.multi_discrete import MultiDiscrete
 import random
 import math

@@ -20,6 +20,11 @@ class Action(object):
         self.u = None  # physical action
 
 
+# properties of landmark entities
+class Landmark(Entity):
+    def __init__(self):
+        super(Landmark, self).__init__()
+
 
 class Entity(object): # properties and state of physical world entity
     def __init__(self):
