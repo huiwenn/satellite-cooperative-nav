@@ -10,7 +10,7 @@ import numpy as np
 import os,sys
 sys.path.append(os.path.abspath(os.getcwd()))
 
-from multiagent.core import  SatWorld, Satellite, Debris
+from multiagent.core import  SatWorld, Satellite, Debris, Entity
 from multiagent.scenario import BaseScenario
 
 
