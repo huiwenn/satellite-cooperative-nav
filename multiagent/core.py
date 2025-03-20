@@ -63,7 +63,6 @@ class Satellite(Entity):# properties of satellites
         self.actions_hist = [] #action history
         self.positions_hist = [] #position history
 
-
     
 
 # multi-agent world
@@ -79,6 +78,9 @@ class SatWorld(object):
         self.landmarks = []
         self.agents_goals = []
         self.obstacles = []
+
+        self.scripted_agents = []
+        self.scripted_agents_goals = []
         # communication channel dimensionality
         self.dim_c = 0
         # position dimensionality
@@ -107,6 +109,11 @@ class SatWorld(object):
     def policy_agents(self):
         return self.agents
         # return [agent for agent in self.agents if agent.action_callback is None]
+
+    # return all agents controlled by world scripts
+    @property
+    def get_scripted_agents(self):
+        return [agent for agent in self.agents if agent.action_callback is not None]
 
 
     def calculate_distances(self):
@@ -246,7 +253,7 @@ class SatWorld(object):
             
     def step(self):
         # set actions for scripted agents 
-        for agent in self.agents:
+        for agent in self.scripted_agents:
             agent.t += self.dt
             agent.action = agent.action_callback(agent, self)
         # gather forces applied to entities
