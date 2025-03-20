@@ -328,8 +328,8 @@ class SatWorld(object):
         return dsdt 
     
     def call_dynamics(self,x,u):
-        if self.perturbed:
-            return self.perturbed_dynamics(x,u)
+        # if self.perturbed:
+        #     return self.perturbed_dynamics(x,u)
         
         return self.dynamics(x,u) 
 
