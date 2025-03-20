@@ -349,7 +349,7 @@ if __name__ == "__main__":
             self.min_dist_thresh:float=0.1
             self.use_dones:bool=False
             self.episode_length:int=25
-            self.share_env = True
+            self.share_env = False
     args = Args()
 
 
@@ -361,7 +361,7 @@ if __name__ == "__main__":
                     observation_callback=scenario.observation, 
                     info_callback=scenario.info_callback, 
                     done_callback= scenario.done,
-                    shared_viewer = False)
+                    shared_viewer = args.share_env)
     
     
     # render call to create viewer window
