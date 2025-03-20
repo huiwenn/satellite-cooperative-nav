@@ -55,6 +55,7 @@ class Satellite(Entity):# properties of satellites
         super(Satellite, self).__init__()
         self.movable = True  # movable by default
         self.u_range = 1000000.0  # control range
+        self.u_noise = 0.0
         self.state = SatState()  # state
         self.action = Action()  # action
         self.action_callback = None  # script behavior to execute
